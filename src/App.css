@@ -1,0 +1,88 @@
+:root {
+    --base00: #232136;
+    --base01: #2a273f;
+    --base02: #393552;
+    --base03: #59546d;
+    --base04: #817c9c;
+    --base05: #e0def4;
+    --base06: #d9d7e1;
+    --base07: #f5f5f7;
+    --base08: #eb6f92;
+    --base09: #ea9a97;
+    --base0A: #f6c177;
+    --base0B: #cbf2b8;
+    --base0C: #3e8fb0;
+    --base0D: #9ccfd8;
+    --base0E: #c4a7e7;
+    --base0F: #b9b9bc;
+}
+
+.App {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.App-header {
+    background-color: var(--base00);
+    /* min-height: 8vh; */
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: var(--base07);
+}
+
+.App-body {
+    background-color: var(--base02);
+    flex: 1;
+    width: 100%;
+
+    display: grid;
+    place-items: center;
+}
+
+.board {
+    background-color: var(--base01);
+    border-radius: 8px;
+
+    width: 90vmin;
+    height: 90vmin;
+
+    display: grid;
+    grid-template-columns: repeat(10, 10%);
+}
+
+.top-left-round { border-top-left-radius: 8px; }
+.top-right-round { border-top-right-radius: 8px; }
+.bottom-left-round { border-bottom-left-radius: 8px; }
+.bottom-right-round { border-bottom-right-radius: 8px; }
+
+.tile {
+    text-align: center;
+    vertical-align: middle;
+    line-height: 9vmin;
+    background-color: var(--base00);
+    flex: 1;
+    height: 100%;
+    width: 100%;
+}
+
+.empty {
+    background-color: var(--base0B)
+}
+
+.bomb {
+    background-color: var(--base08);
+}
+
+.number {
+    background-color: var(--base09);
+}
+
+.App-link {
+    color: var(--base09);
+}
