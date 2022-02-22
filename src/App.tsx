@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLongPress } from 'use-long-press';
 import './App.css';
 
 var seedrandom = require('seedrandom');
@@ -19,32 +20,27 @@ var rng = seedrandom(today.getFullYear + '-' + today.getMonth() + '-' + today.ge
 
 // board[i].value:
 //  -1 = mine
-//  -2 = flag
 // 0-8 = number of mines surrounding
 
 function App() {
     const [board, setBoard] = useState(new Array<Tile>(100));
+    var longIndex = 0;
 
-    if (typeof board === 'undefined') {
-        setBoard((prevState) => {
-            for (var i = 0; i < prevState.length; i++) {
-                prevState[i] = {value: 0, revealed: false};
-            }
-            return prevState
-        })
-    }
-
-    useEffect(() => {
-        console.log("board changed");
-    }, [board])
-
+    // if (typeof board === 'undefined') {
+    //     setBoard((prevState) => {
+    //         for (var i = 0; i < prevState.length; i++) {
+    //             prevState[i] = {value: 0, revealed: false, flagged: false};
+    //         }
+    //         return prevState
+    //     })
+    // }
 
     useEffect(() => {
         var temp = [...board];
 
         // Initialize array
         for (var i = 0; i < temp.length; i++) {
-            temp[i] = {value: 0, revealed: false};
+            temp[i] = {value: 0, revealed: false, flagged: false};
         }
 
         // TODO find a consistant way to get the right number of mines
@@ -65,7 +61,6 @@ function App() {
             } else {
                 r--;
             }
-
         }
 
         // Get surrounding mine values.
@@ -94,6 +89,9 @@ function App() {
         setBoard(temp);
     }, []);
 
+    const longPress = useLongPress(() => flag(longIndex) );
+    const timer = (ms: number) => new Promise(res => setTimeout(res, ms));
+
     return (
         <div className="App">
             <header className="App-header">
@@ -102,15 +100,17 @@ function App() {
             <div className="App-body">
                 <div className="board">
                     {board.map((tile, index) => {
-                        if (tile.revealed === false) {
-                            return <div className="tile" onClick={() => click(index)}>⠀</div>
+                        if (tile.flagged) {
+                            return <div key={index} className="tile flagged" {...longPress} onClick={() => flag(index)} onContextMenu={(e) => {flag(index); e.preventDefault();}} onMouseDown={() => {longIndex = index;}}>🚩</div>
+                        } else if (!tile.revealed) {
+                            return <div key={index} className="tile" {...longPress} onClick={() => click(index)} onContextMenu={(e) => {flag(index); e.preventDefault();}} onMouseDown={() => {longIndex = index;}}>⠀</div>
                         } else {
                             if (tile.value === 0) {
-                                return <div className="tile empty" onClick={() => click(index)}>⠀</div>;
+                                return <div key={index} className="tile empty" onClick={() => click(index)}>⠀</div>;
                             } else if (tile.value === -1) {
-                                return <div className="tile bomb" onClick={() => click(index)}>{tile.value}</div>;
+                                return <div key={index} className="tile bomb" onClick={() => click(index)}>⏺</div>;
                             } else {
-                                return <div className="tile number" onClick={() => click(index)}>{tile.value}</div>;
+                                return <div key={index} className="tile number" onClick={() => click(index)}>{tile.value}</div>;
                             }
                         }
                     })}
@@ -119,14 +119,54 @@ function App() {
         </div>
     );
 
-    function click(index: number) {
-        console.log("clicked: " + index);
-        console.log("revealed: " + board[index].revealed);
+    async function endGame(won: boolean) {
+        const animationDelay = 400;
+        if (won) {
+            console.log("Won!");
+        } else {
+            console.log("Lost!");
+            await timer(animationDelay);
+            for (var i = 0; i < board.length; i++) {
+                if (board[i].value === -1 && !board[i].revealed) {
+                    const temp = [...board];
+                    // temp[i].flagged = false;
+                    temp[i].revealed = true;
+                    setBoard(temp);
+                    await timer(animationDelay);
+                }
+            }
+        }
+    }
 
+    function checkWinCondition() {
+        for (var i = 0; i < board.length; i++) {
+            if (board[i].value === -1 && !board[i].flagged) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function flag(index: number) {
+        console.log('flagged');
+
+        const temp = [...board];
+        temp[index].flagged = !temp[index].flagged;
+        setBoard(temp);
+
+        if (checkWinCondition()) {
+            endGame(true);
+        }
+    }
+
+    function click(index: number) {
         if (board[index].value === -1) {
-            // Game over
-            // } else if (board[index].value === 0) {
-            //     reveal(index);
+            setBoard((prevState) => {
+                prevState[index].revealed = true;
+                return [...prevState];
+            });
+            endGame(false);
         } else {
             reveal(index);
         }
@@ -139,8 +179,8 @@ function App() {
             return
         }
         if (temp[index].value === 0) {
-            console.log("recurse");
             temp[index].revealed = true;
+            temp[index].flagged = false;
 
             if (index % 10 !== 0) {
                 try { reveal(index - 1) } catch (e) {}
@@ -156,8 +196,8 @@ function App() {
             try { reveal(index + 10) } catch (e) {}
 
         } else {
-            console.log("break");
             temp[index].revealed = true;
+            temp[index].flagged = false;
         }
 
         setBoard(temp);
@@ -167,6 +207,7 @@ function App() {
 interface Tile {
     value: number;
     revealed: boolean;
+    flagged: boolean;
 }
 
 export default App;
