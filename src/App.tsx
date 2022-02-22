@@ -111,10 +111,11 @@ function App() {
             for (var i = 0; i < board.length; i++) {
                 if (board[i].value === -1 && !board[i].revealed) {
                     const temp = [...board];
-                    // temp[i].flagged = false;
                     temp[i].revealed = true;
                     setBoard(temp);
-                    await timer(animationDelay);
+                    if (!board[i].flagged) {
+                        await timer(animationDelay);
+                    }
                 }
             }
         }
