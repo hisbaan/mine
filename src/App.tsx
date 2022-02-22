@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useLongPress } from 'use-long-press';
 import './App.css';
 
-var seedrandom = require('seedrandom');
-var today = new Date();
-var rng = seedrandom(today.getFullYear + '-' + today.getMonth() + '-' + today.getDate());
+// var seedrandom = require('seedrandom');
+// var today = new Date();
+// var rng = seedrandom(today.getFullYear + '-' + today.getMonth() + '-' + today.getDate());
 
 // TODO list:
 //      - Store if it has been completed or lost on the current
@@ -26,33 +26,15 @@ function App() {
     const [board, setBoard] = useState(new Array<Tile>(100));
     var longIndex = 0;
 
-    // if (typeof board === 'undefined') {
-    //     setBoard((prevState) => {
-    //         for (var i = 0; i < prevState.length; i++) {
-    //             prevState[i] = {value: 0, revealed: false, flagged: false};
-    //         }
-    //         return prevState
-    //     })
-    // }
-
     useEffect(() => {
-        var temp = [...board];
+        var temp = new Array<Tile>(100);
 
         // Initialize array
         for (var i = 0; i < temp.length; i++) {
             temp[i] = {value: 0, revealed: false, flagged: false};
         }
 
-        // TODO find a consistant way to get the right number of mines
-        //      The current code is generating practially a random number
-        //      of mines.
-        //      Actually, this seems to be working fine. For some reason't it's
-        //      not running on refresh, but only on code compilation. It just adds
-        //      10 each time it is refreshed. This should be able to be fixed after
-        //      determinism is added
-        //
         // TODO Find a way to make this deterministic and based on the current date
-
         // Place mines randomly
         for (var r = 0; r < 10; r++) {
             var x = Math.round(Math.random() * 99);
